@@ -18,9 +18,7 @@ project.
 ## Currently Supported Games
 
 * Arena Breakout
-* Ark Survival
 * Black Clover M
-* Dead by Daylight
 * Delta Force
 * Dislyte
 * Farlight 84
