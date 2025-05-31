@@ -3,7 +3,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "KittyAlertView.h"
+#import "KittyAlertView.hpp"
 
 UIWindow *GetMainWindow();
 UIViewController *GetTopViewController();
@@ -18,10 +18,10 @@ namespace Alert
     KittyAlertView *showWaiting(NSString *title, NSString *msg);
 
     void showSuccess(NSString *title, NSString *msg, ui_action_block_t actionBlock = nil);
-    
-    void showInfo(NSString *title, NSString *msg, float durationSeconds=0, ui_action_block_t actionBlock=nil);
-    
+
+    void showInfo(NSString *title, NSString *msg, float durationSeconds = 0, ui_action_block_t actionBlock = nil);
+
     void showError(NSString *title, NSString *msg, ui_action_block_t actionBlock = nil);
-    
+
     void showNoOrYes(NSString *title, NSString *msg, ui_action_block_t noBlock, ui_action_block_t yesBlock);
-}
+}  // namespace Alert

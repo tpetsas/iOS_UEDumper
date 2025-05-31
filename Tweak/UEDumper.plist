@@ -2,20 +2,22 @@
 	Filter = {
 		Bundles = (
 			"com.farlightgames.farlight84.iosglobal",
-			"com.netease.dbdena",
-			"com.studiowildcard.wardrumstudios.ark",
-			"com.tencent.ig",
-			"com.rekoo.pubgm",
-			"com.pubg.imobile",
-			"com.pubg.krmobile",
-			"com.vng.pubgmobile",
-			"com.tencent.tmgp.pubgmhd",
 			"jp.konami.pesactionmobile",
 			"com.lilithgames.xgame.ios.global",
 			"com.wb.MK.Brawler2015",
 			"com.xd.TLglobal",
 			"com.proximabeta.mf.uamo",
 			"com.garena.game.bc",
+			"com.vividgames.realboxing2",
+			"com.levelinfinite.hotta.ios",
+			"com.teamterrible.thebabyinyellow",
+			"com.kakaogames.gbod",
+			"com.GreenGo.RooftopsParkour",
+			"com.wb.Injustice.Brawler2017",
+			"com.proxima.dfm",
+			"com.kurogame.wutheringwaves.global",
+			"com.netmarble.bnsmasia",
+			"com.netmarble.lin2ws",
 		);
 	};
 }

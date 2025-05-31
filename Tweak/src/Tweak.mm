@@ -9,37 +9,52 @@
 
 #import <SSZipArchive/ZipArchive.h>
 
-#import "Utils/AlertUtils.h"
+#import "Utils/AlertUtils.hpp"
 
 #include <hash/hash.h>
-#include "Core/Dumper.hpp"
+#include "Dumper.hpp"
 
-#include "Core/GameProfiles/Farlight.hpp"
-#include "Core/GameProfiles/DBD.hpp"
-#include "Core/GameProfiles/ARK.hpp"
-#include "Core/GameProfiles/PUBGM.hpp"
-#include "Core/GameProfiles/PES.hpp"
-#include "Core/GameProfiles/Distyle.hpp"
-#include "Core/GameProfiles/Torchlight.hpp"
-#include "Core/GameProfiles/MortalKombat.hpp"
-#include "Core/GameProfiles/ArenaBreakout.hpp"
-#include "Core/GameProfiles/BlackClover.hpp"
+#include "UE/UEGameProfiles/Farlight.hpp"
+#include "UE/UEGameProfiles/PES.hpp"
+#include "UE/UEGameProfiles/Dislyte.hpp"
+#include "UE/UEGameProfiles/Torchlight.hpp"
+#include "UE/UEGameProfiles/MortalKombat.hpp"
+#include "UE/UEGameProfiles/ArenaBreakout.hpp"
+#include "UE/UEGameProfiles/BlackClover.hpp"
+#include "UE/UEGameProfiles/DeltaForce.hpp"
+#include "UE/UEGameProfiles/WutheringWaves.hpp"
+#include "UE/UEGameProfiles/RealBoxing2.hpp"
+#include "UE/UEGameProfiles/OdinValhalla.hpp"
+#include "UE/UEGameProfiles/Injustice2.hpp"
+#include "UE/UEGameProfiles/DeltaForce.hpp"
+#include "UE/UEGameProfiles/RooftopsParkour.hpp"
+#include "UE/UEGameProfiles/BabyYellow.hpp"
+#include "UE/UEGameProfiles/TowerFantasy.hpp"
+#include "UE/UEGameProfiles/SoulBlade.hpp"
+#include "UE/UEGameProfiles/Lineage2.hpp"
 
-#define DUMP_DELAY_SEC 25
+#define DUMP_DELAY_SEC 30
 #define DUMP_FOLDER @"UEDump"
 
-static IGameProfile *UE_Games[] =
-{
+static std::vector<IGameProfile *> UE_Games = {
     new FarlightProfile(),
-    new DBDProfile(),
-    new ArkProfile(),
-    new PUBGMProfile(),
     new PESProfile(),
-    new DistyleProfile(),
+    new DislyteProfile(),
     new TorchlightProfile(),
     new MortalKombatProfile(),
     new ArenaBreakoutProfile(),
-    new BlackCloverProfile()
+    new BlackCloverProfile(),
+    new DeltaForceProfile(),
+    new WutheringWavesProfile(),
+    new RealBoxing2Profile(),
+    new OdinValhallaProfile(),
+    new Injustice2Profile(),
+    new DeltaForceProfile(),
+    new RooftopParkourProfile(),
+    new BabyYellowProfile(),
+    new TowerFantasyProfile(),
+    new SoulBladeProfile(),
+    new Lineage2Profile(),
 };
 
 void dump_thread();
@@ -48,8 +63,8 @@ __attribute__((constructor)) static void onLoad()
 {
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-        NSLog(@"======= I'm Loaded ========");
-        std::thread(dump_thread).detach();
+      NSLog(@"======= I'm Loaded ========");
+      std::thread(dump_thread).detach();
     });
 }
 
@@ -57,77 +72,99 @@ void dump_thread()
 {
     // wait for the application to finish initializing
     sleep(5);
-    
+
     Alert::showInfo([NSString stringWithFormat:@"Dumping after %d seconds.", DUMP_DELAY_SEC], nil, DUMP_DELAY_SEC / 2.f);
-    
+
     sleep(DUMP_DELAY_SEC);
-    
-    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-    
-    NSString *nsAppName = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleDisplayName"];
-    std::string appName = ioutils::remove_specials(nsAppName.UTF8String);
-    
+
+    KittyAlertView *waitingAlert = Alert::showWaiting(@"Initializing Dumper...\n", nil);
+
+    bool dumpSuccess = false;
+    std::unordered_map<std::string, BufferFmt> dumpbuffersMap;
+    auto objectsProgressCallback = [&waitingAlert](const SimpleProgressBar &progress)
+    {
+        static int lastPercent = -1;
+        int currPercent = progress.getPercentage();
+        if (lastPercent != currPercent)
+        {
+            lastPercent = currPercent;
+            execOnUIThread(^() {
+              [waitingAlert setTitle:[NSString stringWithFormat:@"Gathering UObjects %d%%", currPercent] needsLayout:NO];
+            });
+        }
+    };
+    auto dumpProgressCallback = [&waitingAlert](const SimpleProgressBar &progress)
+    {
+        static int lastPercent = -1;
+        int currPercent = progress.getPercentage();
+        if (lastPercent != currPercent)
+        {
+            lastPercent = currPercent;
+            execOnUIThread(^() {
+              [waitingAlert setTitle:[NSString stringWithFormat:@"Dumping %d%%", currPercent] needsLayout:NO];
+            });
+        }
+    };
+
     NSString *appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleIdentifierKey];
-    
-    NSString *dumpFolderName = [NSString stringWithFormat:@"%s_%@", appName.c_str(), DUMP_FOLDER];
-    
-    NSString *dumpPath = [NSString stringWithFormat:@"%@/%@", docDir, dumpFolderName];
-    NSString *zipdumpPath = [NSString stringWithFormat:@"%@.zip", dumpPath];
-    
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    
-    KittyAlertView *waitingAlert = Alert::showWaiting(@"Dumping...", @"This could take some time...");
-    
-    Dumper::DumpStatus dumpStatus = Dumper::UE_DS_NONE;
-    std::unordered_map<std::string, BufferFmt> buffersMap;
-    
+
+    UEDumper uEDumper{};
     auto dmpStart = std::chrono::steady_clock::now();
-    
+
     for (auto &it : UE_Games)
     {
         for (auto &pkg : it->GetAppIDs())
         {
             if (pkg.compare(appID.UTF8String) == 0)
             {
-                dumpStatus = Dumper::InitUEVars(it);
-                if (dumpStatus == Dumper::UE_DS_NONE)
+                if (uEDumper.Init(it))
                 {
-                    dumpStatus = Dumper::Dump(&buffersMap);
+                    dumpSuccess = uEDumper.Dump(&dumpbuffersMap, objectsProgressCallback, dumpProgressCallback);
                 }
                 goto done;
             }
         }
     }
+
 done:
-    
-    if (dumpStatus == Dumper::UE_DS_NONE)
+
+    if (!dumpSuccess && uEDumper.GetLastError().empty())
     {
         Alert::dismiss(waitingAlert);
         Alert::showError(@"Not Supported, Check AppID", nil);
         return;
     }
-    
-    if (buffersMap.empty())
+
+    if (dumpbuffersMap.empty())
     {
         Alert::dismiss(waitingAlert);
-        Alert::showError(@"Dump Failed", [NSString stringWithFormat:@"Error <Buffers empty>.\nStatus <%s>", Dumper::DumpStatusToStr(dumpStatus).c_str()], nil);
+        Alert::showError(@"Dump Failed", [NSString stringWithFormat:@"Error <Buffers empty>.\nStatus <%s>", uEDumper.GetLastError().c_str()], nil);
         return;
     }
-    
-    execOnUIThread(^(){
-        [waitingAlert setTitle:@"Saving Files..."];
+
+    execOnUIThread(^() {
+      [waitingAlert setTitle:@"Saving Files..." needsLayout:YES];
     });
-    
+
+    NSString *docDir = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+
+    std::string appName = IOUtils::remove_specials(uEDumper.GetProfile()->GetAppName());
+
+    NSString *dumpPath = [NSString stringWithFormat:@"%@/%s_%@", docDir, appName.c_str(), DUMP_FOLDER];
+    NSString *zipdumpPath = [NSString stringWithFormat:@"%@.zip", dumpPath];
+
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+
     if ([fileManager fileExistsAtPath:dumpPath])
     {
         [fileManager removeItemAtPath:dumpPath error:nil];
     }
-    
+
     if ([fileManager fileExistsAtPath:zipdumpPath])
     {
         [fileManager removeItemAtPath:zipdumpPath error:nil];
     }
-    
+
     NSError *error = nil;
     if (![fileManager createDirectoryAtPath:dumpPath withIntermediateDirectories:YES attributes:nil error:&error])
     {
@@ -136,8 +173,8 @@ done:
         Alert::showError(@"Failed to create folders", [NSString stringWithFormat:@"Error: %@", error]);
         return;
     }
-    
-    for (const auto &it : buffersMap)
+
+    for (const auto &it : dumpbuffersMap)
     {
         if (!it.first.empty())
         {
@@ -145,7 +182,7 @@ done:
             it.second.writeBufferToFile(path.UTF8String);
         }
     }
-    
+
     if ([SSZipArchive createZipFileAtPath:zipdumpPath withContentsOfDirectory:dumpPath] == YES)
     {
         [fileManager removeItemAtPath:dumpPath error:nil];
@@ -156,33 +193,34 @@ done:
         Alert::showError(@"Failed to zip dump folder", [NSString stringWithFormat:@"Folder: %@", dumpPath]);
         return;
     }
-    
+
     auto dmpEnd = std::chrono::steady_clock::now();
     std::chrono::duration<float, std::milli> dmpDurationMS = (dmpEnd - dmpStart);
-    
+
     Alert::dismiss(waitingAlert);
 
     ui_action_block_t shareAction = ^() {
-        Alert::showNoOrYes(@"Share Dump", @"Do you want to share/transfer dump ZIP file?", nil, ^(){
-            NSURL *zipFileURL = [NSURL fileURLWithPath:zipdumpPath];
-            NSArray *activityItems = @[zipFileURL];
-            UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
-            
-            auto mainVC = GetTopViewController();
-            if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad) {
-                activityVC.popoverPresentationController.sourceView = mainVC.view;
-                activityVC.popoverPresentationController.sourceRect = CGRectMake(mainVC.view.bounds.size.width / 2, mainVC.view.bounds.size.height / 2, 1, 1);
-            }
-            [mainVC presentViewController:activityVC animated:YES completion:nil];
-        });
+      Alert::showNoOrYes(@"Share Dump", @"Do you want to share/transfer dump ZIP file?", nil, ^() {
+        NSURL *zipFileURL = [NSURL fileURLWithPath:zipdumpPath];
+        NSArray *activityItems = @[ zipFileURL ];
+        UIActivityViewController *activityVC = [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];
+
+        auto mainVC = GetTopViewController();
+        if (UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad)
+        {
+            activityVC.popoverPresentationController.sourceView = mainVC.view;
+            activityVC.popoverPresentationController.sourceRect = CGRectMake(mainVC.view.bounds.size.width / 2, mainVC.view.bounds.size.height / 2, 1, 1);
+        }
+        [mainVC presentViewController:activityVC animated:YES completion:nil];
+      });
     };
-    
-    if (dumpStatus == Dumper::UE_DS_SUCCESS)
+
+    if (dumpSuccess)
     {
         Alert::showSuccess(@"Dump Succeeded", [NSString stringWithFormat:@"Duration: %.2fms\nPath:\n%@", dmpDurationMS.count(), zipdumpPath], shareAction);
     }
     else
     {
-        Alert::showError(@"Dump Failed", [NSString stringWithFormat:@"Error <%s>.\nDuration: %.2fms\nDump Path:\n%@", Dumper::DumpStatusToStr(dumpStatus).c_str(), dmpDurationMS.count(), zipdumpPath], shareAction);
+        Alert::showError(@"Dump Failed", [NSString stringWithFormat:@"Error <%s>.\nDuration: %.2fms\nDump Path:\n%@", uEDumper.GetLastError().c_str(), dmpDurationMS.count(), zipdumpPath], shareAction);
     }
 }

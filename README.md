@@ -9,23 +9,32 @@ project.
 
 * Supports ARM64 & ARM64e
 * CodeSign friendly, you can use this as a jailed tweak
-* Dumps UE classes, structs, enums and functions
+* Dumps UE offsets classes, structs, enums and functions
 * Generates function names json script to use with IDA & Ghidra
 * Pattern scanning to find the GUObjectArray, GNames and FNamePoolData addresses automatically
+* Find GWorld and GEngine in '__DATA'
 * Transfer dump files via AirDrop/[LocalSend](https://github.com/localsend/localsend)
 
-## Currently Supported Games (mostly outdated)
+## Currently Supported Games
 
-* Dead by Daylight Mobile
-* Farlight 84
-* PUBGM International
-* ARK Survival
-* eFootBall 2023 (PES Mobile)
-* Distyle
-* Mortal Kombat
-* Torchlight: Infinite
 * Arena Breakout
-* Black Clover
+* Ark Survival
+* Black Clover M
+* Dead by Daylight
+* Delta Force
+* Dislyte
+* Farlight 84
+* Injustice 2
+* Mortal Kombat
+* Odin Valhalla Rising
+* Real Boxing 2
+* Rooftops Parkour
+* The Baby In Yellow
+* Torchlight: Infinite
+* Wuthering Waves
+* Soul Blade Revolution
+* Lineage 2 Revolution
+* eFootball (PES)
 
 ## Usage
 
@@ -37,19 +46,23 @@ After this a third pop-up will appear showing you the optional function to share
 
 ## Output-Files
 
-##### AIOHeader.hpp
+### AIOHeader.hpp
 
 * An all-in-one dump file header
 
-##### Logs.txt
+### Offsets.hpp
+
+* Header containing UE Offsets
+
+### Logs.txt
 
 * Log file containing dump process logs
 
-##### Objects.txt
+### Objects.txt
 
 * ObjObjects dump
 
-##### script.json
+### script.json
 
 * If you are familiar with Il2cppDumper script.json, this is similar
 * It contains a json array of function names and addresses
@@ -60,7 +73,7 @@ You can use AirDrop or [LocalSend](https://github.com/localsend/localsend) to tr
 
 ## Adding or updating a game in the dumper
 
-Follow the prototype in Tweak/src/Core/GameProfiles<br/>
+Follow the prototype in [GameProfiles](Tweak/src/UE/UEGameProfiles)<br/>
 You can also use the provided patterns to find GUObjectArray, GNames or NamePoolData.
 
 ## Building
@@ -76,4 +89,5 @@ make clean package
 * [UE4Dumper-4.25](https://github.com/guttir14/UnrealDumper-4.25)
 * [Il2cppDumper](https://github.com/Perfare/Il2CppDumper)
 * [Dumper-7](https://github.com/Encryqed/Dumper-7)
+* [UEDumper](https://github.com/Spuckwaffel/UEDumper)
 * @Katzi for testing and writing this README for me XD
