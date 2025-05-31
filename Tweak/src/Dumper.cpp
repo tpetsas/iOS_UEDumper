@@ -155,9 +155,6 @@ void UEDumper::DumpObjectsInfo(BufferFmt &logsBufferFmt)
     uintptr_t baseAddr = _profile->GetUEVars()->GetBaseAddress();
     uintptr_t objectArrayPtr = _profile->GetUEVars()->GetGUObjectsArrayPtr();
     uintptr_t objObjectsPtr = _profile->GetUEVars()->GetObjObjectsPtr();
-    
-    logsBufferFmt.append("GUObjectArray Symbol: 0x{:X}\n", KittyScanner::findSymbol(_profile->GetExecutableInfo(), "_GUObjectArray"));
-    logsBufferFmt.append("GNameBlocksDebug Symbol: 0x{:X}\n", KittyScanner::findSymbol(_profile->GetExecutableInfo(), "_GNameBlocksDebug"));
 
     logsBufferFmt.append("GUObjectArray: [<Base> + 0x{:X}] = 0x{:X}\n", objectArrayPtr - baseAddr, objectArrayPtr);
     logsBufferFmt.append("ObjObjects: [<Base> + 0x{:X}] = 0x{:X}\n", objObjectsPtr - baseAddr, objObjectsPtr);
