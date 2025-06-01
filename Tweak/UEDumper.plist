@@ -18,6 +18,11 @@
 			"com.kurogame.wutheringwaves.global",
 			"com.netmarble.bnsmasia",
 			"com.netmarble.lin2ws",
+			"com.netmarble.kingarthur",
+			"com.wemade.nightcrows",
+			"com.wemade.nightcrowsglobal",
+			"com.playwing.Century",
+			"com.WallnutLLC.Case2",
 		);
 	};
 }

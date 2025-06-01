@@ -32,6 +32,10 @@
 #include "UE/UEGameProfiles/TowerFantasy.hpp"
 #include "UE/UEGameProfiles/SoulBlade.hpp"
 #include "UE/UEGameProfiles/Lineage2.hpp"
+#include "UE/UEGameProfiles/NightCrows.hpp"
+#include "UE/UEGameProfiles/Case2.hpp"
+#include "UE/UEGameProfiles/KingArthur.hpp"
+#include "UE/UEGameProfiles/Century.hpp"
 
 #define DUMP_DELAY_SEC 30
 #define DUMP_FOLDER @"UEDump"
@@ -55,6 +59,10 @@ static std::vector<IGameProfile *> UE_Games = {
     new TowerFantasyProfile(),
     new SoulBladeProfile(),
     new Lineage2Profile(),
+    new Case2Profile(),
+    new CenturyProfile(),
+    new KingArthurProfile(),
+    new NightCrowsProfile(),
 };
 
 void dump_thread();

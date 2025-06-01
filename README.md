@@ -33,6 +33,10 @@ project.
 * Soul Blade Revolution
 * Lineage 2 Revolution
 * eFootball (PES)
+* King Arthur Legends Rise
+* Night Crows
+* Century Age Of Ashes
+* Case 2 Animatronics
 
 ## Usage
 
