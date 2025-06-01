@@ -36,6 +36,8 @@
 #include "UE/UEGameProfiles/Case2.hpp"
 #include "UE/UEGameProfiles/KingArthur.hpp"
 #include "UE/UEGameProfiles/Century.hpp"
+#include "UE/UEGameProfiles/HelloNeighbor.hpp"
+#include "UE/UEGameProfiles/HelloNeighborND.hpp"
 
 #define DUMP_DELAY_SEC 30
 #define DUMP_FOLDER @"UEDump"
@@ -63,6 +65,8 @@ static std::vector<IGameProfile *> UE_Games = {
     new CenturyProfile(),
     new KingArthurProfile(),
     new NightCrowsProfile(),
+    new HelloNeighborProfile(),
+    new HelloNeighborNDProfile(),
 };
 
 void dump_thread();
