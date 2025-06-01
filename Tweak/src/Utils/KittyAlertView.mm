@@ -1003,6 +1003,7 @@
     case KittyAlertViewStyleCustom:
         return kColorHex(kCustomTintColorHex);
     }
+    return [UIColor blackColor];
 }
 
 - (UIColor *)backgroundColorForStyle:(KittyAlertViewStyle)style
