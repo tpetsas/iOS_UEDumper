@@ -87,9 +87,49 @@ void dump_thread()
 
     KittyAlertView *waitingAlert = Alert::showWaiting(@"Initializing Dumper...\n", nil);
 
-    bool dumpSuccess = false;
-    std::unordered_map<std::string, BufferFmt> dumpbuffersMap;
-    auto objectsProgressCallback = [&waitingAlert](const SimpleProgressBar &progress)
+    UEDumper uEDumper{};
+
+    uEDumper.setDumpExeInfoNotify([&waitingAlert](bool bFinished)
+    {
+        if (!bFinished)
+        {
+            execOnUIThread(^() {
+              [waitingAlert setTitle:@"Dumping Executable Info..." needsLayout:NO];
+            });
+        }
+    });
+
+    uEDumper.setDumpNamesInfoNotify([&waitingAlert](bool bFinished)
+    {
+        if (!bFinished)
+        {
+            execOnUIThread(^() {
+              [waitingAlert setTitle:@"Dumping Names Info..." needsLayout:NO];
+            });
+        }
+    });
+
+    uEDumper.setDumpObjectsInfoNotify([&waitingAlert](bool bFinished)
+    {
+        if (!bFinished)
+        {
+            execOnUIThread(^() {
+              [waitingAlert setTitle:@"Dumping Objects Info..." needsLayout:NO];
+            });
+        }
+    });
+
+    uEDumper.setOumpOffsetsInfoNotify([&waitingAlert](bool bFinished)
+    {
+        if (!bFinished)
+        {
+            execOnUIThread(^() {
+              [waitingAlert setTitle:@"Dumping Offsets Info..." needsLayout:NO];
+            });
+        }
+    });
+
+    uEDumper.setObjectsProgressCallback([&waitingAlert](const SimpleProgressBar &progress)
     {
         static int lastPercent = -1;
         int currPercent = progress.getPercentage();
@@ -100,8 +140,9 @@ void dump_thread()
               [waitingAlert setTitle:[NSString stringWithFormat:@"Gathering UObjects %d%%", currPercent] needsLayout:NO];
             });
         }
-    };
-    auto dumpProgressCallback = [&waitingAlert](const SimpleProgressBar &progress)
+    });
+
+    uEDumper.setDumpProgressCallback([&waitingAlert](const SimpleProgressBar &progress)
     {
         static int lastPercent = -1;
         int currPercent = progress.getPercentage();
@@ -112,12 +153,13 @@ void dump_thread()
               [waitingAlert setTitle:[NSString stringWithFormat:@"Dumping %d%%", currPercent] needsLayout:NO];
             });
         }
-    };
+    });
+
+    bool dumpSuccess = false;
+    std::unordered_map<std::string, BufferFmt> dumpbuffersMap;
+    auto dmpStart = std::chrono::steady_clock::now();
 
     NSString *appID = [[[NSBundle mainBundle] infoDictionary] objectForKey:(id)kCFBundleIdentifierKey];
-
-    UEDumper uEDumper{};
-    auto dmpStart = std::chrono::steady_clock::now();
 
     for (auto &it : UE_Games)
     {
@@ -127,7 +169,7 @@ void dump_thread()
             {
                 if (uEDumper.Init(it))
                 {
-                    dumpSuccess = uEDumper.Dump(&dumpbuffersMap, objectsProgressCallback, dumpProgressCallback);
+                    dumpSuccess = uEDumper.Dump(&dumpbuffersMap);
                 }
                 goto done;
             }
