@@ -3,14 +3,14 @@
 #include "../UEGameProfile.hpp"
 using namespace UEMemory;
 
-class SoulBladeProfile : public IGameProfile
+class BladeSoulProfile : public IGameProfile
 {
 public:
-    SoulBladeProfile() = default;
+    BladeSoulProfile() = default;
 
     std::string GetAppName() const override
     {
-        return "Soul Blade Revolution";
+        return "Blade Soul Revolution";
     }
 
     std::vector<std::string> GetAppIDs() const override
