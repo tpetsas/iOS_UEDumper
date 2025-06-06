@@ -61,12 +61,18 @@ uint8_t *IGameProfile::GetNameEntry(int32_t id) const
 
     if (!IsUsingFNamePool())
     {
+        static uintptr_t gNames = 0;
+        if (gNames == 0)
+        {
+            gNames = vm_rpm_ptr<uintptr_t>((void *)namesPtr);
+        }
+
         const int32_t ElementsPerChunk = 16384;
         const int32_t ChunkIndex = id / ElementsPerChunk;
         const int32_t WithinChunkIndex = id % ElementsPerChunk;
 
         // FNameEntry**
-        uint8_t *FNameEntryArray = vm_rpm_ptr<uint8_t *>((void *)(namesPtr + ChunkIndex * sizeof(uintptr_t)));
+        uint8_t *FNameEntryArray = vm_rpm_ptr<uint8_t *>((void *)(gNames + ChunkIndex * sizeof(uintptr_t)));
         if (!FNameEntryArray) return nullptr;
 
         // FNameEntry*

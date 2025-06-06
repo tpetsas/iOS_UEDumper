@@ -40,8 +40,7 @@ public:
     uintptr_t GetNamesPtr() const override
     {
         // GFNameTableForDebuggerVisualizers_MT = &GNames
-        uintptr_t name_table_p = KittyScanner::findSymbol(GetExecutableInfo(), "_GFNameTableForDebuggerVisualizers_MT");
-        return name_table_p == 0 ? 0 : vm_rpm_ptr<uintptr_t>((void*)name_table_p);
+        return KittyScanner::findSymbol(GetExecutableInfo(), "_GFNameTableForDebuggerVisualizers_MT");
     }
 
     UE_Offsets *GetOffsets() const override

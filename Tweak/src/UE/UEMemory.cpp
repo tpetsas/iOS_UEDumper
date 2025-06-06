@@ -25,6 +25,22 @@ namespace UEMemory
 
     std::string vm_rpm_str(const void *address, size_t max_len)
     {
+#ifdef RPM_USE_MEMCPY
+        if (PtrValidator.isPtrReadable(address))
+        {
+            const char *chars = (const char *)address;
+            std::string str = "";
+            for (size_t i = 0; i < max_len; i++)
+            {
+                if (chars[i] == '\0')
+                    break;
+
+                str.push_back(chars[i]);
+            }
+            return str;
+        }
+        return "";
+#else
         std::vector<char> chars(max_len, '\0');
         if (!vm_rpm_ptr(address, chars.data(), max_len))
             return "";
@@ -45,10 +61,27 @@ namespace UEMemory
             return "";
 
         return str;
+#endif
     }
 
     std::wstring vm_rpm_strw(const void *address, size_t max_len)
     {
+#ifdef RPM_USE_MEMCPY
+        if (PtrValidator.isPtrReadable(address))
+        {
+            const wchar_t *chars = (const wchar_t *)address;
+            std::wstring str = L"";
+            for (size_t i = 0; i < max_len; i++)
+            {
+                if (chars[i] == L'\0')
+                    break;
+
+                str.push_back(chars[i]);
+            }
+            return str;
+        }
+        return L"";
+#else
         std::vector<wchar_t> chars(max_len, '\0');
         if (!vm_rpm_ptr(address, chars.data(), max_len * 2))
             return L"";
@@ -69,6 +102,7 @@ namespace UEMemory
             return L"";
 
         return str;
+#endif
     }
 
     uintptr_t FindAlignedPointerRefrence(uintptr_t start, size_t range, uintptr_t ptr)
@@ -94,7 +128,7 @@ namespace UEMemory
             if (adrp_address == 0) return 0;
 
             const uintptr_t page_off = kINSN_PAGE_OFFSET(adrp_address);
-            
+
             int64_t adrp_pc_rel = 0;
             int32_t add_imm12 = 0;
 
@@ -110,13 +144,13 @@ namespace UEMemory
 
             return (page_off + adrp_pc_rel + add_imm12);
         }
-        
+
         uintptr_t Decode_ADRP_LDR(uintptr_t adrp_address, uint32_t ldr_offset)
         {
             if (adrp_address == 0) return 0;
-            
+
             const uintptr_t page_off = kINSN_PAGE_OFFSET(adrp_address);
-            
+
             int64_t adrp_pc_rel = 0;
             int32_t ldr_imm12 = 0;
 
