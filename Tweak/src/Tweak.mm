@@ -126,7 +126,7 @@ void dump_thread()
         }
     });
 
-    uEDumper.setOumpOffsetsInfoNotify([&waitingAlert](bool bFinished)
+    uEDumper.setDumpOffsetsInfoNotify([&waitingAlert](bool bFinished)
     {
         if (!bFinished)
         {
