@@ -5,7 +5,7 @@ DEBUG = 0
 FINALPACKAGE = 1
 
 ZSIGN_PATCH_IPA = 0
-TWEAK_SCHEME = rootless
+#TWEAK_SCHEME = rootful
 
 ifeq ($(ZSIGN_PATCH_IPA), 1)
 THEOS_PACKAGE_DIR = ./packages/jailed
@@ -17,8 +17,10 @@ THEOS_PACKAGE_DIR = ./packages/jailed
 #PROV_PATH =
 else
 #THEOS_DEVICE_IP =
-THEOS_PACKAGE_SCHEME = $(TWEAK_SCHEME)
-THEOS_PACKAGE_DIR = ./packages/$(THEOS_PACKAGE_SCHEME)
+#THEOS_PACKAGE_SCHEME = $(TWEAK_SCHEME)
+PACKAGE_ARCH         = iphoneos-arm
+#THEOS_PACKAGE_DIR = ./packages/$(THEOS_PACKAGE_SCHEME)
+THEOS_PACKAGE_DIR = ./packages/
 endif
 
 include $(THEOS)/makefiles/common.mk

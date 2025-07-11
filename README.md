@@ -84,10 +84,27 @@ You can also use the provided patterns to find GUObjectArray, GNames or NamePool
 
 ## Building
 
+This requires THEOS to be installed on Mac:
+
 ```bash
-git clone --recursive https://github.com/MJx0/iOS_UEDumper
+xcode-select --install
+brew install perl git ldid make clang
+
+mkdir -p ~/software
+cd ~/software
+git clone --recursive https://github.com/theos/theos.git
+echo 'export THEOS=~/software/theos' >> ~/.zshrc
+```
+
+Then:
+```bash
+git submodule update --init --recursive
 cd iOS_UEDumper/Tweak
 make clean package
+# replace the following IP address with the local network address from
+# your iPhone device (192.168.2.25)
+scp ./packages/com.kitty.uedumper_4.0.1_iphoneos-arm.deb root@192.168.2.25:/var/tmp/
+
 ```
 
 ## Credits & Thanks
